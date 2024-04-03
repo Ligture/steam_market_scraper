@@ -4,7 +4,7 @@ import bs4
 import requests
 from bs4 import BeautifulSoup
 from requests.cookies import RequestsCookieJar
-
+import webbrowser
 import assets
 import json
 from collections import OrderedDict
@@ -19,7 +19,7 @@ proxy = {
 }
 
 
-def scrape(url, query=None, alert='float < 0.18', sortkey=lambda x: x[1]['float']):
+def scrape(url, query=None,sortkey=lambda x: x[1]['float'],alertfloat = 0.18):
     if query is None:
         query = {"start": 0, "count": 10}
     jar = RequestsCookieJar()
@@ -58,7 +58,6 @@ def scrape(url, query=None, alert='float < 0.18', sortkey=lambda x: x[1]['float'
         time.sleep(2)
         gethtml()
 
-    print(html)
 
     if html.status_code != 200:
         print("失败")
@@ -70,9 +69,17 @@ def scrape(url, query=None, alert='float < 0.18', sortkey=lambda x: x[1]['float'
         sorted_item_info = sorted(item_info.items(), key=sortkey)  # float:磨损排序 priceandfee:价格排序
         restored_dict = OrderedDict(sorted_item_info)
 
-
-
-        print(json.dumps(sorted_item_info, indent=4, sort_keys=True, ensure_ascii=False))
-
+        min_item = min(sorted_item_info, key=lambda x: x[1]['float'])
+        min_float = min_item[1]['float']
+        link = url
+        print(f'{sorted_item_info[1][1]["marketname"]}:{min_float}')
+        if min_float < alertfloat:
+            notification.notify(
+                title="出现低磨损",
+                message=f"物品名称:{min_item[1]['marketname']},购买链接:{link},itemid:{min_item[0]}",
+                timeout=10
+            )
+            print(f"物品名称:{min_item[1]['marketname']},购买链接:{link},itemid:{min_item[0]}")
+            webbrowser.open(link)
 
 

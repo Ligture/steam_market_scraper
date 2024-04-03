@@ -44,7 +44,7 @@ class Assets:
         self.g_rgListingInfo = g_rglistinginfo1
 
         #print(self.g_rgAssets)
-        print(self.g_rgListingInfo)
+        #print(self.g_rgListingInfo)
         self.asset = json.loads(self.g_rgAssets)
         self.list = json.loads(self.g_rgListingInfo)
 
